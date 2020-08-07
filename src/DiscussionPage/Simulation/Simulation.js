@@ -25,6 +25,14 @@ class Simulation extends Component {
         }
     }
 
+    /**
+     * When the component is created, an event listener is also created by using the socket.
+     * As a response to the event, a dictionary of the discussion details are received from the server.
+     * The dictionary contains details such as the messages in the discussion, the title of the discussion, and default
+     * settings that were defined by the moderator while the discussion was created.
+     * The discussion is created and presents to the user according to the given details and given settings.
+     * It also send the server an event of user joined to the chat room and its token.
+     */
     componentDidMount() {
         this.socket.on('join room', async (response) => {
             if (this.allMessages.length === 0) {
@@ -74,6 +82,12 @@ class Simulation extends Component {
         this.handleModeratorActions();
     }
 
+    /**
+     * A recursive function that load all the messages in the discussion from the tree object to the relevant structures.
+     * @param commentNode - object of the current node.
+     * @param childIdx - the index of the next node object.
+     * @param branchId - the id of the message's branch.
+     */
     loadMessages = (commentNode, childIdx, branchId) => {
         if (commentNode == null) return;
         this.messagesCounter++;
@@ -93,6 +107,11 @@ class Simulation extends Component {
         });
     };
 
+    /**
+     * This function is used for cases the moderator did any change in the discussion.
+     * It Listen to the server events that present the possible changes in Simulation.
+     */
+
     handleModeratorActions = () => {
         this.socket.on('next', () => { this.handleNextClick(true) });
         this.socket.on('back', () => { this.handleBackClick(true) });
@@ -102,6 +121,11 @@ class Simulation extends Component {
         this.socket.on('change_simulation_control', this.handleSelfControl);
     };
 
+    /**
+     * This function is used for moderators only, in order to notify the server that the moderator made a change.
+     * @param type - The user type
+     */
+
     handleNavigationClickModerator = (type) => {
         if (this.props.userType !== 'USER') {
             const data = { "discussionId": this.props.discussionId };
@@ -109,11 +133,20 @@ class Simulation extends Component {
         }
     };
 
+    /**
+     * The below two functions are used for the case that the moderator press on the 'next' / 'back' buttons, correspondingly.
+     * It distinct between the type of the message - chat message or alert.
+     * Self message means that the user responded himself, we don't react to this event in the graph, so if it's not the
+     * case- update the relevant graph structures so that the graph elements will be synchronized with the messages
+     * appearance.
+     * @param toUpdateState - If to update the state or not.
+     */
+
     handleNextClick = (toUpdateState) => {
         if (this.currentMessageIndex === this.allMessages.length) return;
         const nextMessage = this.allMessages[this.currentMessageIndex];
         if (nextMessage["comment_type"] !== "comment") {
-            this.shownAlerts.push(nextMessage)
+            this.shownAlerts.push(nextMessage);
             this.update(1, toUpdateState);
             return;
         }
@@ -137,6 +170,7 @@ class Simulation extends Component {
         this.update(1, toUpdateState);
     };
 
+
     handleBackClick = (toUpdateState) => {
         if (this.currentMessageIndex === 1) return;
         const messageIndex = this.currentMessageIndex - 1;
@@ -151,7 +185,7 @@ class Simulation extends Component {
         const parentUserName = this.shownMessages.find(message => message.id === parentId).author;
         const selfMessage = (userName === parentUserName);
         if (this.state.isChronological) {
-            this.backByTimestamp(messageIndex, selfMessage)
+            this.backByTimestamp(messageIndex)
         } else {
             this.shownMessages = this.allMessages.slice(0, this.currentMessageIndex - 1);
             this.shownMessages = this.shownMessages.filter(msg => msg["comment_type"] === "comment");
@@ -165,14 +199,16 @@ class Simulation extends Component {
         this.update(-1, toUpdateState);
     };
 
-    /*
-     nextMessage - the next message that will be presented in the chat.
-     Each node has an array of the ids of its children.
-     Once the user press next, the function add the message to the children array of the parent of the author,
-     add new element of the node (author).
-     If the parent there are no children yet, the node will be add directly to the array, otherwise, the function
-     will look for the last child (message) of its parent and will add this child after it.
+
+    /**
+     *  Each node has an array of the ids of its children.
+     *  Once the user press next, the function add the message to the children array of the parent of the author,
+     *  add new element of the node (author).
+     *  If the parent there are no children yet, the node will be add directly to the array, otherwise, the function
+     *  will look for the last child (message) of its parent and will add this child after it.
+     * @param nextMessage - The id of the next message that will appears in the chat.
      */
+
     nextByTimestamp = (nextMessage) => {
         const parentId = nextMessage.parentId;
         const parentIndex = this.shownMessages.findIndex(message => message.id === parentId);
@@ -193,13 +229,18 @@ class Simulation extends Component {
         this.nodesChildren.set(nextMessage.id, []);
     };
 
-    /*
-     properties:
-     name - represents the messages number (also the tooltip)
-     width - represent the
-     color - represents the updating of the last message
-     */
 
+    /**
+     * Add the link object to the presented links array, or update the relevant properties of exist link.
+     * Update the width and the opacity of all the links in the graph.
+     *
+     * properties:
+     * name - represents the messages number (also the tooltip)
+     * width - represent the
+     * color - represents the updating of the last message
+     * @param userName - the username of the sender.
+     * @param parentUserName - the username of the responded user.
+     */
     updateLinksNext = (userName, parentUserName) => {
         const idx = this.shownLinks.findIndex(currentLink =>
             currentLink.source.id === userName && currentLink.target.id === parentUserName);
@@ -221,6 +262,14 @@ class Simulation extends Component {
         this.updateWidthAll();
     };
 
+
+    /**
+     * Update the messages number while hover on link.
+     * Update the array of current presented links in graph, if necessary.
+     * Update the width and the opacity of all the links in the graph.
+     * @param userName - the username of the sender.
+     * @param parentUserName - the username of the responded user.
+     */
     updateLinksBack = (userName, parentUserName) => {
         const linkIndex = this.shownLinks.findIndex(
             currentLink => currentLink.source.id === userName && currentLink.target.id === parentUserName);
@@ -231,6 +280,14 @@ class Simulation extends Component {
         this.updateOpacityAll();
     };
 
+
+    /**
+     * Add the node object to the presented nodes array, or update the relevant properties of exist node.
+     * Update the relevant counters for the statistics calculations.
+     *
+     * @param userName - the username of the sender.
+     * @param parentUserName - the username of the responded user.
+     */
     updateNodesNext = (userName, parentUserName) => {
         const idx = this.shownNodes.findIndex(currentNode =>
             currentNode.id === userName);
@@ -253,6 +310,12 @@ class Simulation extends Component {
         this.shownNodes[parentIdx].commentsReceived++;
     };
 
+    /**
+     * Update the array of current presented nodes in graph, if necessary.
+     * Update the relevant counters for the statistics calculations.
+     * @param userName - the username of the sender.
+     * @param parentUserName - the username of the responded user.
+     */
     updateNodesBack = (userName, parentUserName) => {
         const linkIndex = this.shownLinks.findIndex(link => link.source.id === userName || link.target.id === userName);
         if (linkIndex === -1 && this.shownNodes.length > 1)
@@ -267,7 +330,13 @@ class Simulation extends Component {
         this.shownNodes[parentIdx].commentsReceived--;
     };
 
-    backByTimestamp = (messageIndex, selfMessage) => {
+    /**
+     * This function is used for cases the default settings of the discussion are include a chronological order of
+     * messages in the chat.
+     * Remove the last message to display from the messages array.
+     * @param messageIndex - the index of the last message in the array messages.
+     */
+    backByTimestamp = (messageIndex) => {
         const parentId = this.allMessages[messageIndex].parentId;
         let children = this.nodesChildren.get(parentId);
         children.splice(children.length - 1, 1);
@@ -277,6 +346,10 @@ class Simulation extends Component {
         this.shownMessages.splice(indexToDelete, 1);
     };
 
+    /**
+     * This function is used for the case that the moderator press on the 'All' button.
+     * All the messages in the discussion will be displayed - both chat messages and alerts.
+     */
     handleShowAllClick = () => {
         while (this.currentMessageIndex < this.allMessages.length) {
             this.handleNextClick(false);
@@ -284,6 +357,10 @@ class Simulation extends Component {
         this.props.updateShownState(this.shownMessages, this.shownNodes, this.shownLinks, this.shownAlerts);
     };
 
+    /**
+     * This function is used for the case that the moderator press on the 'Reset' button.
+     * All the messages in the discussion will be disappeared - both chat messages and alerts.
+     */
     handleResetClick = () => {
         while (this.currentMessageIndex !== 1) {
             this.handleBackClick(false);
@@ -291,6 +368,10 @@ class Simulation extends Component {
         this.props.updateShownState(this.shownMessages, this.shownNodes, this.shownLinks, this.shownAlerts);
     };
 
+    /**
+     * This function is used for the case that the discussion order setting is changed (by the moderator or the user
+     * itself). It resets the discussion and load the relevant messages structure.
+     */
     handleOrderSettings = () => {
         this.handleResetClick();
         this.setState((prevState) => ({
@@ -302,6 +383,10 @@ class Simulation extends Component {
 
     };
 
+    /**
+     * This function is used for the case that the moderator allows a self control of the regular users in the
+     * discussion. It resets the discussion.
+     */
     handleSelfControl = () => {
         this.setState((prevState) => ({
             selfControl: !prevState.selfControl,
@@ -313,7 +398,12 @@ class Simulation extends Component {
 
     };
 
-
+    /**
+     *
+     * @param dif - the difference from the current message index. positive value will increase the messages index,
+     * while negative value will decrease it.
+     * @param toUpdateState - If to update the props (Discussion) state
+     */
     update(dif, toUpdateState) {
         this.currentMessageIndex = this.currentMessageIndex + dif;
         if (toUpdateState) {
@@ -321,6 +411,10 @@ class Simulation extends Component {
         }
     };
 
+    /**
+     * Update the opacity of all the links. The opacity will be determined by the updating of the message, while darker
+     * color will be given to the newest message.
+     */
     updateOpacityAll() {
         for (let index = 0; index < this.shownLinks.length; index++) {
             let newOpacity = Math.pow(index, 3) / Math.pow(this.shownLinks.length - 1, 3);
@@ -331,6 +425,10 @@ class Simulation extends Component {
         }
     };
 
+    /**
+     * Update the width of all the links. The width will be determined by the messages number between the users,
+     * while a thicker width will be given to a larger number of messages between the users.
+     */
     updateWidthAll() {
         const allMessagesNumber = this.shownLinks.map(link => link.name);
         const max = Math.max(...allMessagesNumber);
