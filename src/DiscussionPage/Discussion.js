@@ -81,19 +81,19 @@ class Discussion extends Component {
     setDefaultVisualConfig = (discussionVisualConfig, userVisualConfig) => {
         this.defaultConfig = discussionVisualConfig;
         if (this.props.userType === 'USER') {
+            let elements = ['graph', 'statisticsUser', 'statisticsDiscussion', 'alerts'];
             if (userVisualConfig) {
-                this.setState({
-                    graph: userVisualConfig['graph'],
-                    alerts: userVisualConfig['alerts'],
-                    statisticsUser: userVisualConfig['statisticsUser'],
-                    statisticsDiscussion: userVisualConfig['statisticsDiscussion']
-                });
+                elements.forEach(element => {
+                    this.setState({
+                        [element]: userVisualConfig[element],
+                    });
+                })
+
             } else {
-                this.setState({
-                    graph: discussionVisualConfig['graph'],
-                    alerts: discussionVisualConfig['alerts'],
-                    statisticsUser: discussionVisualConfig['statisticsUser'],
-                    statisticsDiscussion: discussionVisualConfig['statisticsDiscussion']
+                elements.forEach(element => {
+                    this.setState({
+                        [element]: discussionVisualConfig[element],
+                    });
                 });
             }
         }
@@ -220,22 +220,7 @@ class Discussion extends Component {
     };
 
     handleInsightVisibility = (insight, show) => {
-        switch (insight) {
-            case 'graph':
-                this.setState({ graph: show });
-                break;
-            case 'alerts':
-                this.setState({ alerts: show });
-                break;
-            case 'statUser':
-                this.setState({ statisticsUser: show });
-                break;
-            case 'statDiscussion':
-                this.setState({ statisticsDiscussion: show });
-                break;
-            default:
-                break;
-        }
+        this.setState({[insight]: show});
     };
 
     handleAlertClick = (messageId) => {
@@ -444,7 +429,7 @@ class Discussion extends Component {
                                     href="#presentGraph" data-toggle="collapse"
                                     onClick={() => this.handleInsightVisibility('graph', true)} ><h4 ><i
                                         className="fa fa-angle-up p-2" />Graph</h4 ></a >}
-                                <div className="row insights" >
+                                        <div className="row insights" >
                                     {(this.state.statisticsUser || this.state.statisticsDiscussion) &&
                                         <div
                                             className="statistics col-lg-4 col-md-12 p-0 mr-1" >
