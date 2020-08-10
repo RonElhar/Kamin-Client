@@ -11,7 +11,7 @@ class NavigationBar extends Component {
             <nav className="navbar navbar-expand-lg navbar-dark bg-primary py-1 sticky-top" >
                 <div className="container-fluid px-5" >
                     <img className="mr-3" src={bguLogo} alt="bgulogo" width={30} height={30} />
-                    <Link className="navbar-brand" to={'/'} ><i className="fas fa-dungeon pr-2" />Kamin</Link >
+                    <Link className="navbar-brand" to={'/'} ><i className="fas fa-dungeon pr-2" />conversAction</Link >
                     <button
                         className="navbar-toggler" type="button" data-toggle="collapse"
                         data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"

@@ -196,7 +196,7 @@ class HomePage extends Component {
                     }
 
                 </div > : <div >
-                        <h1 >Hi and welcome to Kamin!</h1 >
+                        <h1 >Hi and welcome to conversAction!</h1 >
                         <h3 >In order to use the application you need to create an account or sign in if you already have
                          one.</h3 >
                         <Link to={'/login'} >
