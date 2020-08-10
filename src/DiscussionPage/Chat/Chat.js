@@ -22,6 +22,10 @@ class Chat extends Component {
         this.socket = props.socket;
     }
 
+    /**
+     * socket join request to to discussion
+     * subscribing to socket events
+     */
     componentDidMount() {
         if (!this.props.isSimulation) {
             this.socket.on('join room', (response) => {
@@ -41,6 +45,10 @@ class Chat extends Component {
         }
     };
 
+    /**
+     * Intializing the discussion with response data
+     * @param {*} response - discussion data (tree, metadata)
+     */
     join(response) {
         this.initFields();
         this.setState(
@@ -67,6 +75,9 @@ class Chat extends Component {
         this.props.handleFinishLoading();
     }
 
+    /**
+     * updating graph when comments are added
+     */
     updateGraph() {
         this.shownLinks = Array.from(this.linksMap.values());
         this.shownNodes = Array.from(this.nodesMap.values());
@@ -77,6 +88,9 @@ class Chat extends Component {
         this.updateLinksWidth();
     }
 
+    /**
+     * reload chat when comment is added, reloading discussion data, updating graph
+     */
     reloadChat() {
         this.initFields();
         this.loadDiscussion(this.state.root, null, null);
@@ -86,6 +100,9 @@ class Chat extends Component {
         this.updateGraph();
     }
 
+    /**
+     * Initialize fields with empty collections
+     */
     initFields() {
         this.linksMap = new Map();
         this.nodesMap = new Map();
@@ -94,7 +111,13 @@ class Chat extends Component {
         this.shownLinks = [];
         this.shownAlerts = [];
     }
-
+    
+    /**
+     * 
+     * @param {*} targetId - The id of the comment that the user chose to respond to
+     * @param {*} message - the props of the comment
+     * @param {*} depth - indentation of the comment
+     */
     sendComment(targetId, message, depth) {
         const comment = JSON.stringify({
             "author": this.props.currentUser,
@@ -106,6 +129,10 @@ class Chat extends Component {
         this.socket.emit('add comment', comment)
     };
 
+    /**
+     * Adding comment when a new one has been recived from the server
+     * @param {*} message  props of the comment
+     */
     addComment(message) {
         this.addMessageHelper(this.state.root, message);
         this.reloadChat();
@@ -113,12 +140,19 @@ class Chat extends Component {
         this.props.updateShownState(this.shownMessages, this.shownNodes, this.shownLinks, this.shownAlerts, message);
     };
 
+    /**
+     * Similar to addComment above, but will affect the alerts window by adding alert
+     * @param {*} alert 
+     */
     addAlert(alert) {
         this.addMessageHelper(this.state.root, alert);
         this.shownAlerts.push(alert);
         this.props.updateShownState(this.shownMessages, this.shownNodes, this.shownLinks, this.shownAlerts, this.lastMessage);
     };
 
+    /**
+     * Updating links opacity by freshness
+     */
     updateLinksOpacity() {
         this.shownLinks.forEach(link => {
             const index = this.shownLinks.indexOf(link);
@@ -129,7 +163,9 @@ class Chat extends Component {
             link.updateOpacity([32, 32, 32, newOpacity]);
         });
     }
-
+    /**
+     * update links width by normalizing the number of appearances of the edge (A,B)
+     */
     updateLinksWidth() {
         const allMessagesNumber = this.shownLinks.map(link => link.name);
         const max = Math.max(...allMessagesNumber);
@@ -139,6 +175,14 @@ class Chat extends Component {
         });
     }
 
+    /**
+     * Traversing through the tree in order to find where to add comment
+     * than adding comment to the tree
+     * @param {*} currentNode starting with root
+     * @param {*} comment comment props
+     * @param {*} childIdx the index of the current node in the children list of the parent not;
+     * @param {*} branchId branch id to be added to the comment
+     */
     addMessageHelper(currentNode, comment, childIdx, branchId) {
         if (currentNode == null) return;
         if (currentNode["node"]["id"] === comment.parentId) {
@@ -157,16 +201,27 @@ class Chat extends Component {
         });
     };
 
+    /**
+     * Loading discussion props by traversing the given discussion and updating state lists:
+     * -    adding alerts
+     * -    adding comments
+     * -    adding Nodes
+     * -    adding Edges
+     * @param {*} commentNode 
+     * @param {*} childIdx 
+     * @param {*} branchId 
+     */
     loadDiscussion = (commentNode, childIdx, branchId) => {
         if (commentNode == null) return;
-        if (commentNode["node"]["comment_type"] !== "comment") {
+        if (commentNode["node"]["comment_type"] !== "comment") { // alert case
             if (commentNode["node"]["extra_data"]["recipients_type"] === 'all' ||
                 this.props.currentUser in commentNode["node"]["extra_data"]["users_list"] ||
                 this.props.userType !== "USER")
                 if (this.props.userType !== "USER" || commentNode["node"]["comment_type"] === "alert") {
                     this.shownAlerts.push(commentNode["node"]);
                 }
-        } else if (commentNode["node"]["comment_type"] === "comment") {
+        } else if (commentNode["node"]["comment_type"] === "comment") { // comment case
+            // this section part is to add comment to add new message shown messages
             this.messagesCounter++;
             let newBranchId = (commentNode["node"]["depth"] > 0 ? branchId + '.' + childIdx : '1');
             let parentUserName = '';
@@ -180,6 +235,7 @@ class Chat extends Component {
                 branchId: newBranchId,
                 parentUsername: parentUserName
             });
+            // this section part is to add node to state if it doesn't already exist, otherwise increasing its value
             if (!this.nodesMap.has(commentNode["node"]["author"])) {
                 let node = {
                     id: commentNode["node"]["author"],
@@ -198,6 +254,7 @@ class Chat extends Component {
             else {
                 this.nodesMap.get(commentNode['node']['author'])['comments']++;
             }
+            // increasing parent node comments recieved count
             const parentId = this.shownMessages.find(message =>
                 message.id === commentNode['node']['parentId']);
             if (parentId !== undefined) {
@@ -205,6 +262,7 @@ class Chat extends Component {
                 this.nodesMap.get(parentUsername)['commentsReceived']++;
             }
             let i = 0;
+            // Iterating chilren, adding edges from children to parent in the graph
             commentNode["children"].forEach(childComment => {
                 if (commentNode["node"]["comment_type"] === "comment" && childComment["node"]["comment_type"] === "comment") {
                     if (childComment["node"]["author"] !== commentNode["node"]["author"]) {
