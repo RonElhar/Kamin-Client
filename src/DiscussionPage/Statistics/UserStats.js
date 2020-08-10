@@ -15,10 +15,18 @@ class UserStats extends Component {
         }
     }
 
+    /**
+     * Calculate statistics.
+     * @constructor
+     */
     UNSAFE_componentWillReceiveProps() {
         this.calcUserStats();
     }
 
+    /**
+     * Calculate the user statistics according to its settings.
+     * Update the state according to the current settings.
+     */
     calcUserStats() {
         let commentsWritten = 0;
         let wordsNumber = 0;
@@ -38,7 +46,6 @@ class UserStats extends Component {
         this.props.getShownMessages().forEach(message => {
             if (message.author === selectedUser) {
                 commentsWritten++;
-                console.log(message.text.replace(/<(?<=<)(.*?)(?=>)>/g, ' ').split(' ').filter(word => word.length > 1))
                 wordsNumber += message.text.replace(/<(?<=<)(.*?)(?=>)>/g, ' ').replace('&nbsp;', '').split(' ').filter(word => word.length > 1).length;
             }
         });
