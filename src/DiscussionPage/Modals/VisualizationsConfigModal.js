@@ -126,11 +126,10 @@ class VisualizationsModal extends Component {
 
     /**
      *
-     * Create object in the same structure as message.
+     * Create an object in the same structure as message.
      * The property extra_data contains a dictionary of the user and their new configurations.
      * parentId and depth represent the properties of the last message who sent in the discussion.
-     * This function using the socket to notify the server on changes in the users settings.
-     *
+     * This function using the socketIO to notify the server on changes in the users settings.
      */
     updateConfig = () => {
         let type = '';

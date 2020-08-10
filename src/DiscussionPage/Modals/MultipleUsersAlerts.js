@@ -36,6 +36,11 @@ class MultipleUsersAlerts extends Component {
         });
     }
 
+    /**
+     * Update the modal visibility.
+     * Initialize the alerts flags.
+     * @param isOpen - To show or to hide the modal.
+     */
     updateVisibility = (isOpen) => {
         this.props.updateVisibility(isOpen);
         this.setState({ error: '' });
@@ -45,6 +50,11 @@ class MultipleUsersAlerts extends Component {
         })
     };
 
+    /**
+     * Initialize the error message when the user enter a value.
+     * Update state according to the user writing.
+     * @param event - the event of writing an alert.
+     */
     handleWriteAlert = (event) => {
         const alertText = event.target.value;
         this.setState({ error: '' });
@@ -53,6 +63,12 @@ class MultipleUsersAlerts extends Component {
         });
     };
 
+    /**
+     * In case the moderator chose to send the alert to all users- update all the checkboxes and the list of users.
+     * In case the moderator chose to send the alert to part of the users- update the checkboxes of the chosen users
+     * and add their username to the list of users.
+     * @param event - the click of the user on the 'send' button.
+     */
     updateIsUserAlerted = (event) => {
         let allUsers = this.activeUsers;
         if (event.target.name === 'all') {
@@ -77,6 +93,12 @@ class MultipleUsersAlerts extends Component {
         }
     };
 
+    /**
+     * Check the alert message validation- that there is a target (single user, some users or all the users), and that
+     * the message is not empty.
+     * @returns {boolean} - if the alert is validate or not.
+     */
+
     validateFields = () => {
         if (!(this.state.userAlerted || this.state.alertedAll)) {
             this.setState({
@@ -92,6 +114,14 @@ class MultipleUsersAlerts extends Component {
         }
         return true;
     };
+
+    /**
+     *
+     * Create an object in the same structure as message.
+     * The property extra_data contains a dictionary of the type of the list ('list' for single user or part of the
+     * users, 'all' for sending the alert for all the users) and users list with flag if to alert them.
+     * This function using the socketIO to notify the server on event of sending an alert.
+     */
 
     sendAlert = () => {
         if (!this.validateFields()) return;
