@@ -11,14 +11,25 @@ class DiscussionStats extends Component {
             receivedMost: ""
         }
     }
+
+    /**
+     * Calculate statistics according to the current state.
+     */
     componentDidMount() {
         this.calcDiscussionStats();
     }
 
+    /**
+     * Calculate statistics when there is an update.
+     * @constructor
+     */
     UNSAFE_componentWillReceiveProps() {
         this.calcDiscussionStats();
     }
 
+    /**
+     * Calculate statistics according to the settings of the graph elements.
+     */
     calcDiscussionStats() {
         let nodes = this.props.getShownNodes();
         if (nodes.length === 0) return;
