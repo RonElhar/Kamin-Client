@@ -22,6 +22,10 @@ class HomePage extends Component {
         };
     }
 
+    /**
+     * Load all the real-time and simulation discussions to present to the users.
+     *
+     */
     componentDidMount() {
         if (this.props.currentUser) {
             const xhrRealTime = new XMLHttpRequest();
@@ -57,12 +61,22 @@ class HomePage extends Component {
         }
     };
 
+    /**
+     * Update the visibility settings of the create discussion modal.
+     * @param isOpen - true to open the modal or false to close.
+     */
+
     updateModalHandler = (isOpen) => {
         this.setState({
             discussionModal: isOpen
         });
     };
 
+    /**
+     * Update the relevant setting in state according to the chosen discussion.
+     * @param event - click on button to enter to discussion.
+     * @param isSimulation - if the chosen discussion is simulation or not.
+     */
     handleSelectedDiscussion = (event, isSimulation) => {
         if (isSimulation) {
             this.setState({
@@ -81,6 +95,10 @@ class HomePage extends Component {
         }
     };
 
+    /**
+     * Update the state according to the user input for discussion id.
+     * @param event - user enter id to the input box.
+     */
     handleTypedId = (event) => {
         let id = event.target.value;
         let isSimulation = Object.keys(this.state.simulationDiscussions).includes(id);
@@ -92,6 +110,11 @@ class HomePage extends Component {
         });
     };
 
+    /**
+     * Validate the user choose.
+     * Present an error if no discussion chose or redirect the user to the chosen discussion page.
+     * @param event - click on button to enter to discussion.
+     */
     handleJoinClick = (event) => {
         event.preventDefault();
         if ((!this.state.selectedRealTimeDiscussion && !this.state.selectedSimulationDiscussion && !this.state.typedId) ||
@@ -107,21 +130,21 @@ class HomePage extends Component {
 
     render() {
         return (
-            <React.Fragment> {window.innerWidth > 500 ? <div className="HomePage" >
+            <div className="HomePage" >
                 <div className="headline" />
                 {this.props.currentUser ? <div className="container" >
-                    <React.Fragment >
-                        <p >Moderation Tools:</p >
-                        <button
-                            type="button" className="btn btn-info btn-sm"
-                            onClick={() => this.updateModalHandler(true)} >Create New Discussion
-                    </button >
-                    </React.Fragment >
+                        <React.Fragment >
+                            <p >Moderation Tools:</p >
+                            <button
+                                type="button" className="btn btn-info btn-sm"
+                                onClick={() => this.updateModalHandler(true)} >Create New Discussion
+                        </button >
+                        </React.Fragment >
                     {this.props.userType === 'ROOT' &&
                         <Link to={'/moderatorsManagement'} >
                             <button
                                 type="button" className="btn btn-info btn-sm" >Manage Moderators
-                    </button >
+                        </button >
                         </Link >}
                     <CreateDiscussionModal
                         isOpen={this.state.discussionModal}
@@ -175,23 +198,23 @@ class HomePage extends Component {
                 </div > : <div >
                         <h1 >Hi and welcome to Kamin!</h1 >
                         <h3 >In order to use the application you need to create an account or sign in if you already have
-                     one.</h3 >
+                         one.</h3 >
                         <Link to={'/login'} >
                             <button
                                 type="button" className="btn btn-info btn-sm"
                             >Sign in
-                    </button >
+                        </button >
                         </Link >
                         <Link to={'/registration'} >
                             <button type="button" className="btn btn-info btn-sm" >Sign up
-                    </button >
+                        </button >
                         </Link >
                     </div >
                 }
-            </div > : <p className="text-center"><h1>Sorry currently mobile is not supported :(</h1></p>}
-            </React.Fragment>
+            </div >
         );
     }
+
 }
 
 const mapStateToProps = state => {

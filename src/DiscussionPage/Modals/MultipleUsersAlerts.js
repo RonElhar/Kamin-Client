@@ -52,7 +52,7 @@ class MultipleUsersAlerts extends Component {
 
     /**
      * Initialize the error message when the user enter a value.
-     * Update state according to the user writing.
+     * Update state according to the user input.
      * @param event - the event of writing an alert.
      */
     handleWriteAlert = (event) => {
