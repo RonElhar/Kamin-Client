@@ -4,7 +4,6 @@ import Modal from 'react-bootstrap4-modal';
 import "./CreateDiscussionModal.css"
 import CheckBox from './Checkbox';
 
-
 class CreateDiscussionModal extends Component {
     constructor(props) {
         super(props);
@@ -29,31 +28,47 @@ class CreateDiscussionModal extends Component {
         }
     }
 
-    handleChange = (e) => {
+    /**
+     * Initialize the errors messages when the user enter values.
+     * Update state according to the user change.
+     * @param event - Event object.
+     */
+    handleChange = (event) => {
         this.setState({
             titleError: '',
             descriptionError: ''
         });
-        const {name, value} = e.target;
+        const {name, value} = event.target;
         this.setState({[name]: value});
     };
 
+    /**
+     * Update the state according to the moderator choice - to show or to hide the element to the users in the
+     * discussion.
+     * @param type - the checked or unchecked element.
+     */
     vizConfigChange = (type) => {
         this.configuration.vis_config[type] = !this.configuration.vis_config[type];
-        if (type === "graph") {
-            this.setState(prevState=>({graphChecked: !prevState.graphChecked}));
-        }
-        if (type === "statisticsUser") {
-            this.setState(prevState=>({statsUserChecked: !prevState.statsUserChecked}))
-        }
-        if (type === "statisticsDiscussion") {
-            this.setState(prevState=>({statsDiscussionChecked: !prevState.statsDiscussionChecked}))
-        }
-        if (type === "alerts") {
-            this.setState(prevState=>({alertsChecked: !prevState.alertsChecked}))
+        switch (type) {
+            case ("graph"):
+                this.setState(prevState=>({graphChecked: !prevState.graphChecked}));
+                break;
+            case ("statisticsUser"):
+                this.setState(prevState=>({statsUserChecked: !prevState.statsUserChecked}));
+                break;
+            case ("statisticsDiscussion"):
+                this.setState(prevState=>({statsDiscussionChecked: !prevState.statsDiscussionChecked}));
+                break;
+            case ("alerts"):
+                this.setState(prevState=>({alertsChecked: !prevState.alertsChecked}));
+                break;
         }
     };
 
+    /**
+     * Update the visualization side according to the discussion language.
+     * @param lang - The language of the discussion
+     */
     languageChange = (lang) => {
         if (lang === "English") {
             this.setState({
@@ -69,10 +84,19 @@ class CreateDiscussionModal extends Component {
         this.configuration.language = lang;
     };
 
+    /**
+     * Retarget the user to the discussion page.
+     * @param path - the discussion link.
+     */
     changePath = (path) => {
         this.props.path.push(path);
     };
 
+    /**
+     * After the moderator created the discussion, an object of the first message in the discussion is creating.
+     * The message object is sending to the server with the discussion title and the chosen discussion settings.
+     * If the process success, the user is redirecting to the discussion page.
+     */
     createDiscussion = () => {
         const {description, title} = this.state;
         if (!title) {
@@ -116,7 +140,10 @@ class CreateDiscussionModal extends Component {
         }));
     };
 
-
+    /**
+     * Update the modal visibility.
+     * @param isOpen - To show or to hide the modal.
+     */
     updateVisibility = (isOpen) => {
         this.props.updateVisibility(isOpen);
     };
