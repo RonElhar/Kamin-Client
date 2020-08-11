@@ -6,7 +6,7 @@ Kamin-Client is a ReactJS code repository of a deployed web app, for conducting 
 
 ## Getting Started
 
-* Make sure you have nodejs installed in order to use npm package manager https://nodejs.org/en/
+* Make sure you have nodejs installed in order to use node package manager (npm) https://nodejs.org/en/
 
 * Make sure kamin-server is up & running - https://github.com/RonElhar/Kamin-Server/ see README.
 
@@ -23,4 +23,4 @@ And your browser will open kamin application at http://localhost:3000/
 
 ## To Use Deployment Version
 
-Visit us at http://conversaction.tk:3000/ in order to use the deployed web app 
+Visit us at http://conversaction.tk:3000/ in order to use the deployed web app
