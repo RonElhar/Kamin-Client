@@ -1,7 +1,7 @@
 # Kamin-Client
 
 Kamin-Client is a ReactJS code repository of a deployed web app, for conducting experiments of non-convergent discussions, with integration ready advanced visualizations
-
+This repository contains the code for client side app.
 ![](header.png)
 
 ## Getting Started
