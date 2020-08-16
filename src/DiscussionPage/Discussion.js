@@ -42,7 +42,10 @@ class Discussion extends Component {
             selectedLink: null
         };
     }
-
+    /**
+     * Initialize the socket event listeners and update the state
+     * 
+     */
     componentDidMount() {
         this.setState({ isLoading: true });
         this.socket.on("unauthorized", () => {
@@ -69,7 +72,10 @@ class Discussion extends Component {
                 statistics: true,
             });
     }
-
+    /**
+     * Send a leave message using the socket
+     * 
+     */
     componentWillUnmount() {
         const data = {
             discussionId: this.state.discussionId,
@@ -78,6 +84,11 @@ class Discussion extends Component {
         this.socket.emit('leave', data);
     }
 
+    /**
+     * Set the default visual config
+     * @param discussionVisualConfig - The discussion visual config
+     * @param userVisualConfig - The user visual config
+     */
     setDefaultVisualConfig = (discussionVisualConfig, userVisualConfig) => {
         this.defaultConfig = discussionVisualConfig;
         if (this.props.userType === 'USER') {
@@ -99,19 +110,37 @@ class Discussion extends Component {
         }
     };
 
+    /**
+     * Set the moderator settings 
+     * @param element - The chosen elemnt
+     * @param toShow - If to show the element or not
+     */
     setModeratorSettings = (element, toShow) => {
         this.setState({
             [element]: toShow,
         });
     };
 
-
+    /**
+     * Update the alert message
+     * @param message - The new message
+     * 
+     */
     updateAlertedMessage = (message) => {
         this.setState({
             alertedMessage: message
         });
     };
 
+    /**
+     * Update the shown state
+     * @param newMessages - The new messages
+     * @param newNodes - The new nodes
+     * @param newLinks - The new links
+     * @param newAlerts - The new alerts
+     * @param lastMessage - The new last message
+     * 
+     */
     updateShownState(newMessages, newNodes, newLinks, newAlerts, lastMessage) {
         this.setState({
             shownMessages: newMessages,
@@ -122,14 +151,29 @@ class Discussion extends Component {
         });
     }
 
+    /**
+     * Update the selected user
+     * @param username - The new user
+     * 
+     */
     updateSelectedUserHandler(username) {
         this.setState({ selectedUser: username });
     }
 
+    /**
+     * Update the selected link
+     * @param link - The new link
+     * 
+     */
     updateSelectedLinkHandler = (link) => {
         this.setState({ selectedLink: link });
     };
 
+    /**
+     * Update the title
+     * @param title - The new title
+     * 
+     */
     setTitle = (title) => {
         let dots = '';
         if (title.length > 45) {
@@ -141,6 +185,11 @@ class Discussion extends Component {
         });
     };
 
+    /**
+    * Copy the discussion id when the share button is clicked
+    * 
+    * 
+    */
     handleShareClick = () => {
         let dummy = document.createElement("input");
         document.body.appendChild(dummy);
@@ -150,6 +199,11 @@ class Discussion extends Component {
         document.body.removeChild(dummy);
     };
 
+    /**
+     * Update the language
+     * @param lang - The new language
+     * 
+     */
     updateLanguage = (lang) => {
         if (lang === "English") {
             this.setState({
@@ -164,35 +218,68 @@ class Discussion extends Component {
         }
     }
 
+    /**
+     * Get the selected user
+     * 
+     * 
+     */
     getSelectedUser() {
         return this.state.selectedUser;
     }
 
+    /**
+     * Get the shown messages
+     * 
+     * 
+     */
     getShownMessages() {
         return this.state.shownMessages;
     }
 
+    /**
+     * Get the shown links
+     * 
+     * 
+     */
     getShownLinks() {
         return this.state.shownLinks;
     }
 
+    /**
+     * Get the shown nodes
+     * 
+     * 
+     */
     getShownNodes() {
         return this.state.shownNodes;
     }
 
+    /**
+     * Update if the visual config modal is open or closed
+     * @param isOpen - If it is open
+     * 
+     */
     updateVisualConfigModalHandler = (isOpen) => {
         this.setState({
             showVisualizationSettingsModal: isOpen,
         });
     };
 
+    /**
+     * Update if the send multiple alerts modal is open or closed
+     * @param isOpen - If it is open
+     * 
+     */
     updateSentMultipleAlertsModalHandler = (isOpen) => {
         this.setState({
             showSentMultipleAlertsModal: isOpen,
         });
     };
 
-
+    /**
+     * Close the session
+     * 
+     */
     handleEndSession = () => {
         const data = {
             token: this.props.token,
@@ -201,12 +288,20 @@ class Discussion extends Component {
         this.socket.emit("end_session", data);
     };
 
+    /**
+     * Reset the filter
+     * 
+     */
     resetFilterHandler = () => {
         this.setState({
             selectedLink: null
         })
     };
 
+    /**
+     * Update the config
+     * @param response - The new settings
+     */
     handleNewConfig = (response) => {
         if (this.props.userType === 'USER') {
             for (let setting in response) {
@@ -215,14 +310,29 @@ class Discussion extends Component {
         }
     };
 
+    /**
+     * Set the loading state to false
+     * 
+     */
     handleFinishLoading = () => {
         this.setState({ isLoading: false });
     };
 
+    /**
+     * Update an insight visibility
+     * 
+     * @param insight - The chosen insight
+     * @param show - Its visibility
+     */
     handleInsightVisibility = (insight, show) => {
-        this.setState({[insight]: show});
+        this.setState({ [insight]: show });
     };
 
+    /**
+     * Update the selected message on alert click
+     * 
+     * @param messageId - The chosen message id
+     */
     handleAlertClick = (messageId) => {
         if (this.state.selectedMessageId === messageId) {
             this.setState({ selectedMessageId: null })
@@ -231,6 +341,11 @@ class Discussion extends Component {
         }
     };
 
+    /**
+     * Convert string to hashcode
+     * 
+     * @param str - The string
+     */
     hashCode = (str) => {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
@@ -239,11 +354,20 @@ class Discussion extends Component {
         return hash;
     };
 
+    /**
+     * Convert int to rgb
+     * 
+     * @param i - The integer
+     */
     intToRGB = (i) => {
         const c = (this.hashCode(i) & 0x00ffffff).toString(16).toUpperCase();
         return "00000".substring(0, 6 - c.length) + c;
     };
 
+    /**
+     * Manage the download process of the current discussion
+     * 
+     */
     download = () => {
         const xhr = new XMLHttpRequest();
         xhr.addEventListener('load', () => {
@@ -252,7 +376,7 @@ class Discussion extends Component {
                 return;
             }
             const data = JSON.parse(xhr.responseText)
-            if(!data ){
+            if (!data) {
                 console.log("no data for download")
                 return;
             }
@@ -268,6 +392,12 @@ class Discussion extends Component {
         xhr.send();
     }
 
+    /**
+     * Download the discussion as a csv file
+     * 
+     * @param csvContent - The csv content of the discussion
+     * @param filename - The file name
+     */
     downloadCsvFile(csvContent, filename) {
         const BOM = "\uFEFF";
         csvContent = BOM + csvContent;
@@ -282,6 +412,12 @@ class Discussion extends Component {
         document.body.removeChild(link);
     }
 
+    /**
+     * Download the discussion as a json file
+     * 
+     * @param jsonObj - The json object of the discussion
+     * @param filename - The file name
+     */
     downloadJsonFile(jsonObj, filename) {
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonObj));
         var link = document.createElement("a");
@@ -293,6 +429,10 @@ class Discussion extends Component {
         document.body.removeChild(link);
     }
 
+    /**
+     * Render the discussion page
+     * 
+     */
     render() {
         return (
             <div className="App" >
@@ -429,7 +569,7 @@ class Discussion extends Component {
                                     href="#presentGraph" data-toggle="collapse"
                                     onClick={() => this.handleInsightVisibility('graph', true)} ><h4 ><i
                                         className="fa fa-angle-up p-2" />Graph</h4 ></a >}
-                                        <div className="row insights" >
+                                <div className="row insights" >
                                     {(this.state.statisticsUser || this.state.statisticsDiscussion) &&
                                         <div
                                             className="statistics col-lg-4 col-md-12 p-0 mr-1" >
